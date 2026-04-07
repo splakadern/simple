@@ -4,12 +4,16 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    # This environment variable fixes the Node.js 20 warning
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # Updated to v4
+        uses: actions/checkout@v4
 
       - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v2 # Updated to v2
+        uses: arduino/setup-arduino-cli@v2
 
       - name: Install ESP32 Core
         run: |
@@ -18,10 +22,11 @@ jobs:
 
       - name: Compile
         run: |
-          arduino-cli compile --fqbn esp32:esp32:esp32 --output-dir ./build .
+          # We add --verbose to see EXACTLY why the code failed if it happens again
+          arduino-cli compile --verbose --fqbn esp32:esp32:esp32 --output-dir ./build .
 
       - name: Upload Result
-        uses: actions/upload-artifact@v4  # Updated to v4
+        uses: actions/upload-artifact@v4
         with:
           name: compiled-bin
           path: ./build/*.bin
